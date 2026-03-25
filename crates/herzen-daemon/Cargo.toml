@@ -10,6 +10,7 @@ path = "src/main.rs"
 
 [dependencies]
 herzen-config = { workspace = true }
+herzen-llm = { workspace = true }
 herzen-server = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }

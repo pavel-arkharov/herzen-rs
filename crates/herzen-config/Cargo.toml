@@ -11,3 +11,4 @@ toml = { workspace = true }
 schemars = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }
+dirs = "6"
