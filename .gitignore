@@ -1,0 +1,19 @@
+# Rust build artifacts
+/target/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Environment and secrets
+.env
+*.secret
+
+# Models and data (large files, download locally)
+/data/
+/models/

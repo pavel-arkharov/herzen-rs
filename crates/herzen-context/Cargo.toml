@@ -1,0 +1,11 @@
+[package]
+name = "herzen-context"
+description = "Context window management, budgeting, and compaction"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+herzen-config = { workspace = true }
+serde = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }

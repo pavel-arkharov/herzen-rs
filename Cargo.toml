@@ -1,0 +1,62 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/herzen-config",
+    "crates/herzen-core",
+    "crates/herzen-audio",
+    "crates/herzen-vad",
+    "crates/herzen-stt",
+    "crates/herzen-tts",
+    "crates/herzen-llm",
+    "crates/herzen-context",
+    "crates/herzen-router",
+    "crates/herzen-ha",
+    "crates/herzen-server",
+    "crates/herzen-daemon",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/pavel-arkharov/herzen-rs"
+
+[workspace.dependencies]
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+
+# Serialization & config
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+
+# HTTP & WebSocket
+axum = { version = "0.8", features = ["ws"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace"] }
+reqwest = { version = "0.12", features = ["json"] }
+
+# Logging & observability
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Error handling
+thiserror = "2"
+anyhow = "1"
+
+# Schema generation (for dynamic UI)
+schemars = "0.8"
+
+# Workspace crates (internal)
+herzen-config = { path = "crates/herzen-config" }
+herzen-core = { path = "crates/herzen-core" }
+herzen-audio = { path = "crates/herzen-audio" }
+herzen-vad = { path = "crates/herzen-vad" }
+herzen-stt = { path = "crates/herzen-stt" }
+herzen-tts = { path = "crates/herzen-tts" }
+herzen-llm = { path = "crates/herzen-llm" }
+herzen-context = { path = "crates/herzen-context" }
+herzen-router = { path = "crates/herzen-router" }
+herzen-ha = { path = "crates/herzen-ha" }
+herzen-server = { path = "crates/herzen-server" }
+herzen-daemon = { path = "crates/herzen-daemon" }

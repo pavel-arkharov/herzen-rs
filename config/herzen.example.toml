@@ -1,0 +1,24 @@
+# Herzen configuration example
+# Copy to herzen.toml and customize.
+
+[server]
+host = "127.0.0.1"
+port = 3100
+
+[audio]
+# sample_rate = 16000
+# channels = 1
+
+[stt]
+# model_path = "~/.herzen/models/ggml-base.bin"
+# language = "auto"  # "auto", "en", "ru"
+
+[tts]
+# default_provider = "piper"
+
+[llm]
+# default_model = "dialog"  # references a model config in config/models/
+
+# [ha]
+# endpoint = "http://homeassistant.local:8123"
+# token_file = "~/.herzen/secrets/ha_token"

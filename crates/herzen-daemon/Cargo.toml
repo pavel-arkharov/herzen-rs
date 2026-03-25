@@ -1,0 +1,17 @@
+[package]
+name = "herzen-daemon"
+description = "Process supervisor, resource monitor, and graceful degradation"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "herzend"
+path = "src/main.rs"
+
+[dependencies]
+herzen-config = { workspace = true }
+herzen-server = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow = { workspace = true }

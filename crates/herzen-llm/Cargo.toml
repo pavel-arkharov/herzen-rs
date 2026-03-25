@@ -1,0 +1,15 @@
+[package]
+name = "herzen-llm"
+description = "LLM inference via llama.cpp bindings and model pool management"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+herzen-config = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+reqwest = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+anyhow = { workspace = true }

@@ -1,0 +1,10 @@
+[package]
+name = "herzen-vad"
+description = "Voice Activity Detection via Silero ONNX model"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+herzen-config = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }

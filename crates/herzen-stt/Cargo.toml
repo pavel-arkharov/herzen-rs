@@ -1,0 +1,10 @@
+[package]
+name = "herzen-stt"
+description = "Speech-to-text via whisper.cpp bindings"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+herzen-config = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }

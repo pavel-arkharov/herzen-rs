@@ -1,0 +1,11 @@
+[package]
+name = "herzen-audio"
+description = "Cross-platform audio capture and playback via cpal"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+herzen-config = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
