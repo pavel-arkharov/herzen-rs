@@ -11,6 +11,7 @@ members = [
     "crates/herzen-context",
     "crates/herzen-router",
     "crates/herzen-ha",
+    "crates/herzen-skills",
     "crates/herzen-server",
     "crates/herzen-daemon",
 ]
@@ -58,5 +59,6 @@ herzen-llm = { path = "crates/herzen-llm" }
 herzen-context = { path = "crates/herzen-context" }
 herzen-router = { path = "crates/herzen-router" }
 herzen-ha = { path = "crates/herzen-ha" }
+herzen-skills = { path = "crates/herzen-skills" }
 herzen-server = { path = "crates/herzen-server" }
 herzen-daemon = { path = "crates/herzen-daemon" }
