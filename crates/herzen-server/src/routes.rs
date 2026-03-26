@@ -29,16 +29,53 @@ pub fn api_routes() -> Router<AppState> {
         .route("/api/config", get(get_config))
         .route("/api/models", get(list_models))
         .route("/api/chat", post(chat))
+        .route("/api/skills", get(list_skills))
+        .route("/api/skills/test", post(test_skill))
 }
 
 async fn get_config(State(state): State<AppState>) -> impl IntoResponse {
     Json(serde_json::to_value(state.config()).unwrap_or_default())
 }
 
+// --- Models ---
+
+#[derive(Serialize)]
+struct ModelStatusResponse {
+    name: String,
+    role: String,
+    loaded: bool,
+    memory_mb: u32,
+    gpu_layers: u32,
+    context_size: u32,
+    temperature: f32,
+    top_p: f32,
+    max_tokens: u32,
+    throughput: f32,
+    path: String,
+}
+
 async fn list_models(State(state): State<AppState>) -> impl IntoResponse {
-    let models = state.model_pool().list().await;
+    let configs = state.model_pool().list_with_configs().await;
+    let models: Vec<ModelStatusResponse> = configs
+        .into_iter()
+        .map(|c| ModelStatusResponse {
+            name: c.name,
+            role: format!("{:?}", c.role).to_lowercase(),
+            loaded: true,
+            memory_mb: 0,
+            gpu_layers: c.gpu_layers,
+            context_size: c.context_size,
+            temperature: c.temperature,
+            top_p: c.top_p,
+            max_tokens: c.max_tokens,
+            throughput: 0.0,
+            path: c.path,
+        })
+        .collect();
     Json(serde_json::json!({ "models": models }))
 }
+
+// --- Chat ---
 
 #[derive(Deserialize)]
 struct ChatBody {
@@ -128,6 +165,21 @@ async fn chat(
     }))
 }
 
+// --- Skills (stubs — wired to herzen-skills in a future step) ---
+
+async fn list_skills() -> impl IntoResponse {
+    Json(serde_json::json!({ "skills": [] }))
+}
+
+#[derive(Deserialize)]
+struct SkillTestBody {
+    input: String,
+}
+
+async fn test_skill(Json(_body): Json<SkillTestBody>) -> impl IntoResponse {
+    Json(serde_json::json!({ "results": [] }))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -174,7 +226,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn models_endpoint_empty() {
+    async fn models_endpoint_empty_returns_array() {
         let app = crate::build_router(test_state());
         let response = app
             .oneshot(
@@ -187,6 +239,53 @@ mod tests {
             .unwrap();
 
         assert_eq!(response.status(), StatusCode::OK);
+        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert!(json["models"].is_array());
+    }
+
+    #[tokio::test]
+    async fn models_endpoint_returns_rich_objects() {
+        use herzen_config::{ModelConfig, ModelRole};
+        let pool = ModelPool::new();
+        pool.register_model(
+            ModelConfig {
+                name: "test-model".into(),
+                path: "test-model".into(),
+                role: ModelRole::Dialog,
+                gpu_layers: 99,
+                context_size: 4096,
+                temperature: 0.7,
+                top_p: 0.9,
+                max_tokens: 512,
+            },
+            "http://localhost:11434",
+        )
+        .await;
+        let app = crate::build_router(AppState::new(HerzenConfig::default(), pool));
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/api/models")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        let models = json["models"].as_array().unwrap();
+        assert_eq!(models.len(), 1);
+        assert_eq!(models[0]["name"], "test-model");
+        assert_eq!(models[0]["role"], "dialog");
+        assert_eq!(models[0]["loaded"], true);
+        assert_eq!(models[0]["gpu_layers"], 99);
     }
 
     #[tokio::test]
@@ -208,5 +307,26 @@ mod tests {
             .unwrap();
 
         assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+    }
+
+    #[tokio::test]
+    async fn skills_endpoint_returns_empty_list() {
+        let app = crate::build_router(test_state());
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/api/skills")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+        let body = axum::body::to_bytes(response.into_body(), usize::MAX)
+            .await
+            .unwrap();
+        let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+        assert!(json["skills"].is_array());
     }
 }

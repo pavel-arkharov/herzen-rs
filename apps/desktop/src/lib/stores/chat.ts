@@ -141,7 +141,7 @@ export async function sendMessage(content: string, model?: string) {
 			'/api/chat',
 			{
 				method: 'POST',
-				body: JSON.stringify({ message: content, model: model || undefined }),
+				body: JSON.stringify({ messages: [{ role: 'user', content }], model: model || undefined }),
 			}
 		);
 		const replyTurn: ChatTurn = {

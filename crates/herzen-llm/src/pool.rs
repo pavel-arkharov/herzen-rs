@@ -71,6 +71,11 @@ impl ModelPool {
         self.providers.read().await.keys().cloned().collect()
     }
 
+    /// List all registered model configs (for rich API responses).
+    pub async fn list_with_configs(&self) -> Vec<ModelConfig> {
+        self.configs.read().await.values().cloned().collect()
+    }
+
     /// Remove a model from the pool.
     pub async fn unload(&self, name: &str) {
         self.providers.write().await.remove(name);

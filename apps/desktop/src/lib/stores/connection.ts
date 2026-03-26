@@ -7,15 +7,10 @@ export interface ServerEvent {
 	[key: string]: unknown;
 }
 
-const WS_URL = 'ws://127.0.0.1:3030/ws';
-const REST_URL = 'http://127.0.0.1:3030';
+const REST_URL = 'http://127.0.0.1:3100';
 
 export const status = writable<ConnectionStatus>('disconnected');
 export const lastEvent = writable<ServerEvent | null>(null);
-export const restUrl = writable(REST_URL);
-
-let ws: WebSocket | null = null;
-let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
 const eventHandlers = new Map<string, Set<(event: ServerEvent) => void>>();
 
@@ -25,46 +20,28 @@ export function onEvent(type: string, handler: (event: ServerEvent) => void) {
 	return () => { eventHandlers.get(type)?.delete(handler); };
 }
 
-function dispatch(event: ServerEvent) {
+export function dispatch(event: ServerEvent) {
 	lastEvent.set(event);
 	eventHandlers.get(event.type)?.forEach(h => h(event));
 	eventHandlers.get('*')?.forEach(h => h(event));
 }
 
-export function connect(url = WS_URL) {
-	if (ws && ws.readyState <= 1) return;
-	status.set('connecting');
+let pollTimer: ReturnType<typeof setInterval> | null = null;
 
-	ws = new WebSocket(url);
-	ws.onopen = () => status.set('connected');
-	ws.onclose = () => {
-		status.set('disconnected');
-		scheduleReconnect(url);
-	};
-	ws.onerror = () => status.set('error');
-	ws.onmessage = (e) => {
-		try {
-			dispatch(JSON.parse(e.data));
-		} catch { /* ignore malformed */ }
-	};
+/** Poll /health every 5s to drive connection status. WebSocket will be added later. */
+export function pollHealth() {
+	const check = () =>
+		fetchApi('/health')
+			.then(() => status.set('connected'))
+			.catch(() => status.set('disconnected'));
+
+	check();
+	if (pollTimer) clearInterval(pollTimer);
+	pollTimer = setInterval(check, 5000);
 }
 
-export function disconnect() {
-	if (reconnectTimer) clearTimeout(reconnectTimer);
-	ws?.close();
-	ws = null;
-	status.set('disconnected');
-}
-
-export function send(data: unknown) {
-	if (ws?.readyState === WebSocket.OPEN) {
-		ws.send(JSON.stringify(data));
-	}
-}
-
-function scheduleReconnect(url: string) {
-	if (reconnectTimer) clearTimeout(reconnectTimer);
-	reconnectTimer = setTimeout(() => connect(url), 3000);
+export function stopPolling() {
+	if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
 }
 
 export async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {

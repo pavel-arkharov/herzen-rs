@@ -112,13 +112,25 @@ pub struct TtsConfig {
 }
 
 /// LLM inference configuration.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(default)]
 pub struct LlmConfig {
     /// Name of the default model (references a model in the `models` list)
     pub default_model: Option<String>,
+    /// Base URL for the OpenAI-compatible inference backend (Ollama, llama-server, etc.)
+    pub base_url: String,
     /// Registered models
     pub models: Vec<ModelConfig>,
+}
+
+impl Default for LlmConfig {
+    fn default() -> Self {
+        Self {
+            default_model: None,
+            base_url: "http://127.0.0.1:11434".into(),
+            models: Vec::new(),
+        }
+    }
 }
 
 /// Configuration for a single LLM model.

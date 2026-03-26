@@ -1,5 +1,5 @@
 # Herzen configuration example
-# Copy to herzen.toml and customize.
+# Copy to ~/.herzen/herzen.toml and customize.
 
 [server]
 host = "127.0.0.1"
@@ -17,7 +17,37 @@ port = 3100
 # default_provider = "piper"
 
 [llm]
-# default_model = "dialog"  # references a model config in config/models/
+# Base URL for the OpenAI-compatible inference backend.
+# Ollama default: http://127.0.0.1:11434
+# llama-server default: http://127.0.0.1:8080
+base_url = "http://127.0.0.1:11434"
+default_model = "qwen2.5:3b"
+
+# Add one [[llm.models]] block per model you want available.
+# The "name" must match exactly what your backend knows the model as.
+# For Ollama: use the tag you pulled (e.g. "qwen2.5:3b", "llama3.2:3b")
+# For llama-server: use the model name you loaded it with.
+
+[[llm.models]]
+name = "qwen2.5:3b"
+path = "qwen2.5:3b"      # for Ollama this is unused; set to name as placeholder
+role = "dialog"
+gpu_layers = 99          # 99 = all layers on GPU (Metal on M1). Set to 0 for CPU-only.
+context_size = 4096
+temperature = 0.7
+top_p = 0.9
+max_tokens = 512
+
+# Smaller/faster option for low-memory machines (e.g. 2011 MacBook Pro):
+# [[llm.models]]
+# name = "qwen2.5:1.5b"
+# path = "qwen2.5:1.5b"
+# role = "dialog"
+# gpu_layers = 0         # CPU only on Linux Intel
+# context_size = 2048
+# temperature = 0.7
+# top_p = 0.9
+# max_tokens = 256
 
 # [ha]
 # endpoint = "http://homeassistant.local:8123"

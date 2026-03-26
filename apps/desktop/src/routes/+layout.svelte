@@ -1,14 +1,14 @@
 <script lang="ts">
 	import '../app.css';
 	import Sidebar from '$lib/components/Sidebar.svelte';
-	import { connect } from '$lib/stores/connection.js';
+	import { pollHealth } from '$lib/stores/connection.js';
 	import { onMount } from 'svelte';
 	import type { Snippet } from 'svelte';
 
 	let { children }: { children: Snippet } = $props();
 
 	onMount(() => {
-		connect();
+		pollHealth();
 	});
 </script>
 

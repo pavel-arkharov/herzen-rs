@@ -29,11 +29,8 @@ async fn main() -> Result<()> {
 
     // Register models from config
     for model_config in &config.llm.models {
-        // For HTTP-based providers, we use Ollama's endpoint by default
-        // TODO: make the base URL configurable per model
-        let base_url = "http://127.0.0.1:11434";
         model_pool
-            .register_model(model_config.clone(), base_url)
+            .register_model(model_config.clone(), &config.llm.base_url)
             .await;
         tracing::info!("registered model: {} (role: {:?})", model_config.name, model_config.role);
     }
