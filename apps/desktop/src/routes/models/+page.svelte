@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { models, loadedModels, memory, herzenMemoryMb, refreshModels } from '$lib/stores/models.js';
+	import { models, loadedModels, memory, herzenMemoryMb, refreshModels, modelOverrides, setModelOverride } from '$lib/stores/models.js';
 	import MemoryBar from '$lib/components/MemoryBar.svelte';
 	import { onMount } from 'svelte';
 
@@ -43,18 +43,24 @@
 				<div class="model-sliders">
 					<label class="slider-row">
 						<span>Temperature</span>
-						<input type="range" min="0" max="2" step="0.05" bind:value={model.temperature} />
-						<span class="slider-value">{model.temperature.toFixed(2)}</span>
+						<input type="range" min="0" max="2" step="0.05"
+							value={$modelOverrides[model.name]?.temperature ?? model.temperature}
+							oninput={(e) => setModelOverride(model.name, 'temperature', +e.currentTarget.value)} />
+						<span class="slider-value">{($modelOverrides[model.name]?.temperature ?? model.temperature).toFixed(2)}</span>
 					</label>
 					<label class="slider-row">
 						<span>Top-P</span>
-						<input type="range" min="0" max="1" step="0.05" bind:value={model.top_p} />
-						<span class="slider-value">{model.top_p.toFixed(2)}</span>
+						<input type="range" min="0" max="1" step="0.05"
+							value={$modelOverrides[model.name]?.top_p ?? model.top_p}
+							oninput={(e) => setModelOverride(model.name, 'top_p', +e.currentTarget.value)} />
+						<span class="slider-value">{($modelOverrides[model.name]?.top_p ?? model.top_p).toFixed(2)}</span>
 					</label>
 					<label class="slider-row">
 						<span>Max tokens</span>
-						<input type="range" min="64" max="4096" step="64" bind:value={model.max_tokens} />
-						<span class="slider-value">{model.max_tokens}</span>
+						<input type="range" min="64" max="4096" step="64"
+							value={$modelOverrides[model.name]?.max_tokens ?? model.max_tokens}
+							oninput={(e) => setModelOverride(model.name, 'max_tokens', +e.currentTarget.value)} />
+						<span class="slider-value">{$modelOverrides[model.name]?.max_tokens ?? model.max_tokens}</span>
 					</label>
 				</div>
 				<div class="model-actions">

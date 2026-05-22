@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { turns, sendMessage, selectedModel, inputMode, isStreaming } from '$lib/stores/chat.js';
-	import { loadedModels } from '$lib/stores/models.js';
+	import { loadedModels, modelOverrides } from '$lib/stores/models.js';
 	import { status } from '$lib/stores/connection.js';
 	import ChatMessage from '$lib/components/ChatMessage.svelte';
 
@@ -16,7 +16,8 @@
 	function handleSend() {
 		const text = inputText.trim();
 		if (!text || $isStreaming) return;
-		sendMessage(text, $selectedModel || undefined);
+		const overrides = $modelOverrides[$selectedModel] ?? {};
+		sendMessage(text, $selectedModel || undefined, overrides.temperature, overrides.max_tokens);
 		inputText = '';
 	}
 

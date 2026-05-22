@@ -51,3 +51,33 @@ export async function refreshModels() {
 		models.set(data.models ?? []);
 	} catch { /* server not running */ }
 }
+
+// --- Runtime parameter overrides ---
+// Slider values set here are merged into every chat request for that model.
+// They survive page navigation but reset on full app reload.
+
+type ModelParams = Partial<Pick<ModelStatus, 'temperature' | 'top_p' | 'max_tokens'>>;
+
+export const modelOverrides = writable<Record<string, ModelParams>>({});
+
+export function setModelOverride(
+	name: string,
+	key: 'temperature' | 'top_p' | 'max_tokens',
+	value: number
+) {
+	modelOverrides.update((o) => ({ ...o, [name]: { ...o[name], [key]: value } }));
+}
+
+/** Return effective params for a model: server config merged with any local overrides. */
+export function getModelParams(name: string, base: ModelStatus): ModelParams {
+	const overrides = (() => {
+		let v: Record<string, ModelParams> = {};
+		modelOverrides.subscribe((o) => { v = o; })();
+		return v[name] ?? {};
+	})();
+	return {
+		temperature: overrides.temperature ?? base.temperature,
+		top_p: overrides.top_p ?? base.top_p,
+		max_tokens: overrides.max_tokens ?? base.max_tokens,
+	};
+}

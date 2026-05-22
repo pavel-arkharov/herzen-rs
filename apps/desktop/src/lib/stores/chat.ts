@@ -125,7 +125,7 @@ onEvent('tts_done', (e) => {
 	);
 });
 
-export async function sendMessage(content: string, model?: string) {
+export async function sendMessage(content: string, model?: string, temperature?: number, maxTokens?: number) {
 	const turnId = crypto.randomUUID();
 	const userTurn: ChatTurn = {
 		id: turnId,
@@ -141,7 +141,12 @@ export async function sendMessage(content: string, model?: string) {
 			'/api/chat',
 			{
 				method: 'POST',
-				body: JSON.stringify({ messages: [{ role: 'user', content }], model: model || undefined }),
+				body: JSON.stringify({
+				messages: [{ role: 'user', content }],
+				model: model || undefined,
+				temperature: temperature,
+				max_tokens: maxTokens,
+			}),
 			}
 		);
 		const replyTurn: ChatTurn = {
